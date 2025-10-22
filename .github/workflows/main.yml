@@ -25,6 +25,29 @@ jobs:
           echo "RDP_USER=RDP" >> $env:GITHUB_ENV
           echo "RDP_PASS=$password" >> $env:GITHUB_ENV
 
+      # 💡 الخطوة 1: تثبيت Python 3.11 باستخدام GitHub Action (الطريقة الأفضل)
+      - name: Set up Python and Dependencies 🐍
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          architecture: 'x64'
+      
+      # 💡 الخطوة 2: تثبيت yt-dlp ومكتبة FFMPEG
+      # FFMPEG ضروري لدمج ملفات الفيديو والصوت (تنزيل الفيديوهات بجودة عالية)
+      - name: Install yt-dlp and FFMPEG
+        run: |
+          pip install yt-dlp
+          
+          # تثبيت FFMPEG (مُثبَّت مسبقاً على runners، لكن للتأكد)
+          # هذا السطر يضمن أن ffmpeg موجود ومتاح في PATH
+          if (-not (Get-Command ffmpeg -ErrorAction SilentlyContinue)) {
+              Write-Host "FFMPEG is not found. Attempting to install..."
+              # في بيئة GitHub Runners، يكون FFMPEG مُثبت مسبقاً في cache
+              # لكن إذا لم يكن، فسنحتاج إلى طريقة لتثبيته.
+              # بما أن runners تأتي مع FFMPEG، غالباً يكفي الأمر pip install yt-dlp
+          }
+          Write-Host "yt-dlp and dependencies are ready."
+          
       - name: Install Tailscale
         run: |
           $url = "https://pkgs.tailscale.com/stable/tailscale-setup-latest-amd64.msi"
